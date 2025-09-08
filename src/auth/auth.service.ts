@@ -66,6 +66,21 @@ export class AuthService {
     return authToken.user;
   }
 
+  async googleLogin(profile: any) {
+  const { email, name, sub: googleId, picture: avatar } = profile;
+
+  let user = await this.userRepo.findOne({ where: { googleId } });
+
+  if (!user) {
+    user = this.userRepo.create({ email, name, googleId, avatar });
+    await this.userRepo.save(user);
+  }
+
+  // generate JWT token
+  const token = this.jwtService.sign({ userId: user.id, email: user.email });
+  return { token, user };
+}
+
   // Logout
   async logout(token: string) {
     await this.tokenRepo.delete({ token });

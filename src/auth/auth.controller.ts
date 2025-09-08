@@ -32,5 +32,10 @@ export class AuthController {
   logout(@Body() body: { token: string }) {
     return this.authService.logout(body.token);
   }
+
+  @Post('google')
+  async googleLogin(@Body() body: { profile: any }) {
+    return this.authService.googleLogin(body.profile);
+  }
 }
 

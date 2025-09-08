@@ -11,8 +11,18 @@ export class User {
   @Column({ unique: true })
   email: string;
 
-  @Column()
-  password: string; // แนะนำให้เก็บแบบ hash (bcrypt)
+  @Column({ nullable: true })
+  password: string; // สำหรับ email/password login (hash ด้วย bcrypt)
+
+  // สำหรับ Google login
+  @Column({ nullable: true })
+  googleId: string;
+
+  @Column({ nullable: true })
+  name: string;
+
+  @Column({ nullable: true })
+  avatar: string;
 
   @OneToMany(() => AuthToken, (token) => token.user)
   tokens: AuthToken[];
