@@ -9,12 +9,14 @@ import * as bcrypt from 'bcrypt';
 import { randomBytes } from 'crypto';
 import { AuthToken } from 'src/entity/auth-token.entity';
 import { User } from 'src/entity/user.entity';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(User) private readonly userRepo: Repository<User>,
     @InjectRepository(AuthToken) private readonly tokenRepo: Repository<AuthToken>,
+    private readonly jwtService: JwtService,
   ) {}
 
   // Register
@@ -79,6 +81,34 @@ export class AuthService {
   // generate JWT token
   const token = this.jwtService.sign({ userId: user.id, email: user.email });
   return { token, user };
+}
+
+async loginWithFacebook(accessToken: string) {
+  const response = await fetch(
+    `https://graph.facebook.com/me?access_token=${accessToken}&fields=id,name,email`
+  );
+  const profile = await response.json();
+
+  if (!profile || profile.error) {
+    throw new UnauthorizedException('Invalid Facebook token');
+  }
+
+  // ค้นหา user หรือสร้างใหม่
+  let user = await this.userRepo.findOne({ where: { facebookId: profile.id } });
+  if (!user) {
+    user = this.userRepo.create({
+      facebookId: profile.id,
+      email: profile.email,
+      name: profile.name,
+    });
+    await this.userRepo.save(user);
+  }
+
+  // ออก JWT
+  const payload = { sub: user.id, email: user.email };
+  return {
+    access_token: this.jwtService.sign(payload),
+  };
 }
 
   // Logout

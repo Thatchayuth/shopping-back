@@ -37,5 +37,10 @@ export class AuthController {
   async googleLogin(@Body() body: { profile: any }) {
     return this.authService.googleLogin(body.profile);
   }
+
+  @Post('facebook')
+async facebookLogin(@Body() body: { accessToken: string }) {
+  return this.authService.loginWithFacebook(body.accessToken);
+}
 }
 

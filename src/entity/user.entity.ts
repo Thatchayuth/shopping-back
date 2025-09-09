@@ -1,6 +1,7 @@
 /* eslint-disable prettier/prettier */
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany, OneToOne } from 'typeorm';
 import { AuthToken } from './auth-token.entity';
+import { Address } from './address.entity';
 
 
 @Entity()
@@ -24,6 +25,12 @@ export class User {
   @Column({ nullable: true })
   avatar: string;
 
+  @Column({ nullable: true })
+  facebookId: string;
+
   @OneToMany(() => AuthToken, (token) => token.user)
   tokens: AuthToken[];
+  
+  @OneToMany(() => Address, (address) => address.user)
+  address: Address[];
 }
